@@ -1,0 +1,11 @@
+Webots Proto Cache File version 1.5
+protoFileHash: 536884939336b6a66dba1d133af8a228
+needsRobotAncestor: 1
+baseType: Robot
+slotType: 
+parameters: translation,rotation,controller
+tags: static
+license:  Apache License 2.0
+licenseUrl:  http://www.apache.org/licenses/LICENSE-2.0
+documentationUrl: 
+info: More\sinfo\shere:\shttps://www.youtube.com/c/soft-illusion\nRobotsense\n

@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>moveit_ros_planning_interface</name>
+  <version>2.1.4</version>
+  <description>Components of MoveIt that offer simpler interfaces to planning and execution</description>
+
+  <author email="isucan@google.com">Ioan Sucan</author>
+
+  <maintainer email="mferguson@fetchrobotics.com">Michael Ferguson</maintainer>
+  <maintainer email="me@v4hn.de">Michael Görner</maintainer>
+  <maintainer email="moveit_releasers@googlegroups.com">MoveIt Release Team</maintainer>
+
+  <license>BSD</license>
+
+  <url type="website">http://moveit.ros.org</url>
+  <url type="bugtracker">https://github.com/ros-planning/moveit2/issues</url>
+  <url type="repository">https://github.com/ros-planning/moveit2</url>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>eigen3_cmake_module</buildtool_depend>
+  <build_depend>moveit_common</build_depend>
+
+  <depend>moveit_core</depend>
+  <depend>moveit_ros_planning</depend>
+  <depend>moveit_ros_warehouse</depend>
+  <depend>moveit_ros_move_group</depend>
+  <!-- TODO(JafarAbdi): uncomment after porting moveit_ros_manipulation -->
+  <!--depend>moveit_ros_manipulation</depend-->
+  <depend>rclcpp</depend>
+  <depend>rclpy</depend>
+  <depend>rclcpp_action</depend>
+  <depend>geometry_msgs</depend>
+  <depend>moveit_msgs</depend>
+  <depend>tf2</depend>
+  <depend>tf2_eigen</depend>
+  <depend>tf2_geometry_msgs</depend>
+  <depend>tf2_ros</depend>
+  <depend>python3</depend>
+  <!--depend>eigenpy</depend-->
+
+  <build_depend>eigen</build_depend>
+
+  <test_depend>moveit_resources_fanuc_moveit_config</test_depend>
+  <test_depend>moveit_resources_panda_moveit_config</test_depend>
+  <test_depend>moveit_simple_controller_manager</test_depend>
+  <test_depend>moveit_planners_ompl</test_depend>
+  <test_depend>rviz2</test_depend>
+  <test_depend>ros_testing</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

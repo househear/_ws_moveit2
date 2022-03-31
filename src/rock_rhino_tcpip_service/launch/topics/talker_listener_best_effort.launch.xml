@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="rock_rhino_tcpip_service" exec="talker" output="screen" />
+  <node pkg="rock_rhino_tcpip_service" exec="listener_best_effort" output="screen" />
+</launch>

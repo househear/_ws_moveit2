@@ -1,0 +1,9 @@
+# Goal
+int32 order
+string task_name
+---
+# Result
+int32[] sequence
+---
+# Feedback
+int32[] sequence

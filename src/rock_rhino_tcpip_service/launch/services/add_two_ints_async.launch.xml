@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="rock_rhino_tcpip_service" exec="add_two_ints_server" output="screen" />
+  <node pkg="rock_rhino_tcpip_service" exec="add_two_ints_client_async" output="screen" />
+</launch>
