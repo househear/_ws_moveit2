@@ -139,9 +139,9 @@ class MinimalClientAsync(Node):
         Action_Client_2_PKG(self, _process_controller, 'moveit/action_server_pro_ctr', ActionClient(self, ProcessCommand, 'moveit/action_server_pro_ctr'),  )
 
         self.action_clients = {
-            "image_processor": action_client_image_processor,
-            "data_base": action_client_data_base,
-            "moveit": action_client_moveit            
+            "img": action_client_image_processor,
+            "db": action_client_data_base,
+            "mvit": action_client_moveit            
         }
 
 
@@ -293,25 +293,27 @@ class Process_Controller:
         return self.address  
 
 
-    def send_runtask(self, task_name):
-        if task_name == 'detect_tag':
-            self.node.action_clients["image_processor"].send_task('aa')
-            self.set_process_status(task_name)
-            self.node.get_logger().info(task_name + ' is running')
-        elif task_name == 'db_query':
-            self.node.action_clients["data_base"].send_task('query')
-            self.set_process_status(task_name)
-            self.node.get_logger().info(task_name + ' is running')
-        elif task_name == 'update_db2':
-            self.node.action_clients["data_base"].send_task('t2')
-            self.set_process_status(task_name)
-            self.node.get_logger().info(task_name + ' is running')
-        elif task_name == 'moveit_plan':
-            self.node.action_clients["moveit"].send_task('t2')
-            self.set_process_status(task_name)
-            self.node.get_logger().info(task_name + ' is running')
-        else:
+    def send_runtask(self, module_name, task_name):
+        try:
+            self.node.action_clients[module_name].send_task(task_name)
+            self.set_process_status(module_name + task_name)
+            self.node.get_logger().info(module_name + task_name + ' is running')
+        except:
             print('Unknown command....')
+
+        #     self.node.action_clients[module_name].send_task(task_name)
+        #     self.set_process_status(module_name)
+        #     self.node.get_logger().info(module_name + ' is running')
+        # elif module_name == 'update_db2':
+        #     self.node.action_clients["data_base"].send_task('t2')
+        #     self.set_process_status(module_name)
+        #     self.node.get_logger().info(module_name + ' is running')
+        # elif module_name == 'moveit_plan':
+        #     self.node.action_clients["moveit"].send_task('t2')
+        #     self.set_process_status(module_name)
+        #     self.node.get_logger().info(module_name + ' is running')
+        # else:
+        #     print('Unknown command....')
 
 
     def send_runjob(self, job_mode):
@@ -385,7 +387,7 @@ class Process_Controller:
                     print('Unknown command: ')
 
             elif res[0] == 'runtask':
-                self.send_runtask(res[1])
+                self.send_runtask(res[1], res[2])
 
             elif res[0] == 'runjob':
                 self.send_runjob(res[1]) 

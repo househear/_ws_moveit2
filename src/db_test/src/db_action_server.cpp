@@ -34,8 +34,8 @@ using warehouse_ros::Metadata;
 using warehouse_ros::NoMatchingMessageException;
 using warehouse_ros::Query;
 
-typedef warehouse_ros::MessageCollection<gm::msg::Pose> PoseCollection;
-typedef warehouse_ros::MessageWithMetadata<gm::msg::Pose> PoseWithMetadata;
+typedef warehouse_ros::MessageCollection<rock_rhino_msgs::msg::DetectedTag> PoseCollection;
+typedef warehouse_ros::MessageWithMetadata<rock_rhino_msgs::msg::DetectedTag> PoseWithMetadata;
 typedef PoseWithMetadata::ConstPtr PoseMetaPtr;
 
 // Helper function that creates metadata for a message.
@@ -53,16 +53,12 @@ Metadata::Ptr makeMetadata(const PoseCollection& coll, const int& n)
 // Helper function that creates metadata for a message.
 // Here we'll use the x and y position, as well as a 'name'
 // field that isn't part of the original message.
-Metadata::Ptr _makeMetadata(const PoseCollection& coll, const gm::msg::Pose& p, const string& n)
+Metadata::Ptr _makeMetadata(const PoseCollection& coll, const int& n)
 {
   Metadata::Ptr meta = coll.createMetadata();
-  meta->append("x", p.position.x);
-  meta->append("y", p.position.y);
   meta->append("name", n);
   return meta;
 }
-
-
 
 static const rclcpp::Logger LOGGER = rclcpp::get_logger("ompl_constrained_planning_demo");
 static const std::string PLANNING_GROUP = "panda_arm";
@@ -75,21 +71,6 @@ static const double PLANNING_ATTEMPTS = 5.0;
 
 using namespace std::chrono_literals;
 
-
-
-inline geometry_msgs::msg::Pose makePose(const std::shared_ptr<rock_rhino_msgs::msg::DetectedTag> msg)
-{
-  geometry_msgs::msg::Pose p;
-  p.position.x = msg->position.x;
-  p.position.y = msg->position.y;
-  p.position.z = msg->position.z;
-  p.orientation.x = msg->posture.x;
-  p.orientation.y = msg->posture.y;
-  p.orientation.z = msg->posture.z;
-  return p;
-}
-
-
 geometry_msgs::msg::Quaternion createQuaternionMsgFromYaw(double yaw)
 {
   geometry_msgs::msg::Quaternion q;
@@ -99,13 +80,13 @@ geometry_msgs::msg::Quaternion createQuaternionMsgFromYaw(double yaw)
   q.y = 0;
   return q;
 }
-
-inline geometry_msgs::msg::Pose _makePose(const double x, const double y, const double theta)
+//const std::shared_ptr<rock_rhino_msgs::msg::DetectedTag> msg
+inline rock_rhino_msgs::msg::DetectedTag _makePose(const int tag_id, const double x)
 {
-  geometry_msgs::msg::Pose p;
-  p.position.x = x;
-  p.position.y = y;
-  p.orientation = createQuaternionMsgFromYaw(theta);
+  rock_rhino_msgs::msg::DetectedTag p;
+  p.tag_id = tag_id;
+  p.pose.position.x = x;
+
   return p;
 }
 
@@ -141,7 +122,7 @@ public:
         {
           //RCLCPP_INFO(this->get_logger(), "I heard: [%d]", msg->tag_id);
           //check if this tag exits
-          update_db(msg);
+          //update_db(msg);
           
         };
 
@@ -161,7 +142,7 @@ public:
       conn.dropDatabase("my_db");
 
       // Open the collection
-      coll = conn.openCollection<gm::msg::Pose>("my_db", "poses");
+      coll = conn.openCollection<rock_rhino_msgs::msg::DetectedTag>("my_db", "poses");
 
       // Arrange to index on metadata fields 'x' and 'name'
       // coll.ensureIndex("name");
@@ -235,25 +216,35 @@ private:
          query_all();
     }    
 
-    if (goal->task_name == "t2") {
-         RCLCPP_INFO(this->get_logger(), "Executing t2");
-    }
+    if (goal->task_name == "add") {
+         RCLCPP_INFO(this->get_logger(), "add record into db"); //inqury the data base if it is empty
+         add_record();
+    }    
+
+    if (goal->task_name == "delete") {
+        RCLCPP_INFO(this->get_logger(), "delete record in db"); //inqury the data base if it is empty
+        delete_record();
+}    
   }
 
 
   void add_record() //print out all records in db
   {
-    //add a record
-  // Add some poses and metadata
-    const gm::msg::Pose p1 = _makePose(24, 42, 0);
-    const gm::msg::Pose p2 = _makePose(10, 532, 3);
-    const gm::msg::Pose p3 = _makePose(53, 22, 5);
-    const gm::msg::Pose p4 = _makePose(22, -5, 33);
-    coll.insert(p1, _makeMetadata(coll, p1, "bar"));
-    coll.insert(p2, _makeMetadata(coll, p2, "baz"));
-    coll.insert(p3, _makeMetadata(coll, p3, "qux"));
-    coll.insert(p1, _makeMetadata(coll, p1, "oof"));
-    coll.insert(p4, _makeMetadata(coll, p4, "ooof"));
+
+    const rock_rhino_msgs::msg::DetectedTag dg1 = _makePose(11, 42.3);
+    coll.insert(dg1, _makeMetadata(coll, dg1.tag_id));
+
+    const rock_rhino_msgs::msg::DetectedTag dg2 = _makePose(15, 4.3);
+    coll.insert(dg2, _makeMetadata(coll, dg2.tag_id));
+    // const gm::msg::Pose p1 = _makePose(24, 42, 0);
+    // const gm::msg::Pose p2 = _makePose(10, 532, 3);
+    // const gm::msg::Pose p3 = _makePose(53, 22, 5);
+    // const gm::msg::Pose p4 = _makePose(22, -5, 33);
+    // coll.insert(p1, _makeMetadata(coll, p1, "bar"));
+    // coll.insert(p2, _makeMetadata(coll, p2, "baz"));
+    // coll.insert(p3, _makeMetadata(coll, p3, "qux"));
+    // coll.insert(p1, _makeMetadata(coll, p1, "oof"));
+    // coll.insert(p4, _makeMetadata(coll, p4, "ooof"));
     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "return: %d", coll.count());
   }
 
@@ -262,8 +253,9 @@ private:
 
       //delete a record
     Query::Ptr q3 = coll.createQuery();
-    q3->append("name", "qux");
+    q3->append("name", 11);
     coll.removeMessages(q3);
+    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "return: %d", coll.count());
 
 
 
@@ -282,40 +274,42 @@ private:
     // Simple query: find the pose with name 'qux' and return just its metadata
     // Since we're doing an equality check, we don't explicitly specify a predicate
     Query::Ptr q1 = coll.createQuery();
-    q1->appendLT("x", 20000);
-    vector<PoseMetaPtr> res = coll.queryList(q1, true);
+    q1->appendLT("name", 20000);
+    vector<PoseMetaPtr> res = coll.queryList(q1, false);
     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "return size: %d", res.size());
     for (int i = 0; i < res.size(); i++)
     {
-
-      std::cout << "name: " << res[i]->lookupString("name") << "-----"
-          << "x: " << res[i]->lookupDouble("x") << "-----"
-          << "y: " << res[i]->lookupDouble("y")
+      std::cout 
+          << "< meta: " << res[i]->lookupInt("name") << " >---"
+          << "< tag_id: " << res[i]->tag_id << " >---"
+          << "< p_x: " << res[i]->pose.position.x << " >---"
+          << "< p_y: " << res[i]->pose.position.y<< " >---"
+          << "< p_z: " << res[i]->pose.position.z
           << std::endl;
     }
 
   }
 
-  void update_db(std::shared_ptr<rock_rhino_msgs::msg::DetectedTag> msg)
-  {
+  // void update_db(std::shared_ptr<rock_rhino_msgs::msg::DetectedTag> msg)
+  // {
 
-    //check if the tag has been existed in db by search tag id
-    Query::Ptr q1 = coll.createQuery();
-    int int_id = msg->tag_id;
-    q1->append("ID", int_id);
-    vector<PoseMetaPtr> res = coll.queryList(q1, true);
-    if (res.empty()) {
-      RCLCPP_INFO(this->get_logger(), "add a new tag");
-      const gm::msg::Pose p1 = makePose(msg);
-      coll.insert(p1, makeMetadata(coll, msg->tag_id));
-      update_webot_ui();
+  //   //check if the tag has been existed in db by search tag id
+  //   Query::Ptr q1 = coll.createQuery();
+  //   int int_id = msg->tag_id;
+  //   q1->append("ID", int_id);
+  //   vector<PoseMetaPtr> res = coll.queryList(q1, true);
+  //   if (res.empty()) {
+  //     RCLCPP_INFO(this->get_logger(), "add a new tag");
+  //     const gm::msg::Pose p1 = makePose(msg);
+  //     coll.insert(p1, makeMetadata(coll, msg->tag_id));
+  //     update_webot_ui();
 
-    }
+  //   }
 
-    //RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "return: %d", res[0]->lookupInt("ID"));
-    //RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "return: %d", res.empty());
+  //   //RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "return: %d", res[0]->lookupInt("ID"));
+  //   //RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "return: %d", res.empty());
 
-  }
+  // }
 
   void update_webot_ui()
   {

@@ -8,9 +8,9 @@ colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo --
 . install/setup.bash
 
 
-3. launch db_test
-ros2 launch db_test db_server.launch.py
-ros2 run rock_rhino_process_controller rock_rhino_process_controller
+3. launch db and controller
+db: ros2 launch db_test db_server.launch.py
+controller: ros2 run rock_rhino_process_controller rock_rhino_process_controller
 
 
 Errors:
@@ -19,17 +19,20 @@ Errors:
 # targeted process
     1. scinario: default 3 tag images present in 3d space (task 1)
     2. image processor detected tags and send it to db (task 2)
-    3. webots driver monitor the acitve tags in db, if exit, moveit2 to it
+    3. webots driver monitor the acitve tags in db, if exit, moveit2 to it ((task 3))
     4. robot apporached all tags, stop
 
 # process controller
 A B C
 
 A: runtask/runjob
-B: module (db, img, wb, mvit)
+B: module_name (db, img, wb, mvit)
 C: task type
     db: query/add/delete
+
 # 4/13 to construct db and acess db from process controller
+
+1. clone repos from
 --- detectedTag data type
     int64 tag_id   
     geometry_msgs/Vector3 position

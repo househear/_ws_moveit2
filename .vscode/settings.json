@@ -72,7 +72,8 @@
         "typeinfo": "cpp",
         "valarray": "cpp",
         "variant": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "*.idl": "cpp"
     },
     "python.autoComplete.extraPaths": [
         "/home/housebear/_ws_moveit2/install/webots_ros2/lib/python3.8/site-packages",
