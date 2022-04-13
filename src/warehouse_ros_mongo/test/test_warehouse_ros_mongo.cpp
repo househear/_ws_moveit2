@@ -145,7 +145,7 @@ TEST(MongoRos, MongoRos)
   Metadata::Ptr m1 = coll.createMetadata();
   m1->append("name", "barbar");
   coll.modifyMetadata(q4, m1);
-  EXPECT_EQ(3u, coll.count());
+  EXPECT_EQ(3u, coll.count());  
   EXPECT_THROW(coll.findOne(q4, false), NoMatchingMessageException);
   EXPECT_EQ(p1, *coll.findOne(q5, false));
 

@@ -16,7 +16,8 @@
 
 import launch
 from launch_ros.actions import Node
-
+from launch_ros.actions import ComposableNodeContainer
+from launch_ros.descriptions import ComposableNode
 def generate_launch_description():
 
 
@@ -32,14 +33,29 @@ def generate_launch_description():
         output="screen",
     )
     
-    db_server_node = Node(
-    package="db_test",
-    executable="db_action_server",
-    #name="db_action_server",
-    )
+    # db_server_node = Node(
+    # package="db_test",
+    # executable="db_action_server",
+    # name="db_action_server",
+    # )
+
+    container = ComposableNodeContainer(
+            name='my_container',
+            namespace='',
+            package='rclcpp_components',
+            executable='component_container',
+            composable_node_descriptions=[
+                ComposableNode(
+                    package='db_test',
+                    plugin='db_test::ProCtrl2DataBaseActionServer',
+                    name='db_action_server')
+            ],
+            output='screen',
+    )   
     return launch.LaunchDescription([
         mongodb_server_node,
-        db_server_node,
+        container
+        #db_server_node,
         # TODO(wjwwood): replace this with a `required=True|False` option on ExecuteProcess().
         # Shutdown launch when client exits.
         #launch.actions.RegisterEventHandler(

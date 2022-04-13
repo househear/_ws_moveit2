@@ -134,41 +134,41 @@ class ArucoController(Node):
             for i in range(0, len(ids)):  # Iterate in markers
                 if self.recent_tags.full():
                     self.recent_tags.get() #kick off the front ele if the queue is full
-                if search(list(self.recent_tags.queue), int(ids[i][0])):
-                    None
+                #if search(list(self.recent_tags.queue), int(ids[i][0])):
+                #    None
                  #   self.get_logger().info('tag have been added:{0}'.format(list(self.recent_tags.queue)))
-                else:
-                    self.recent_tags.put(int(ids[i][0]))
-                    rvec, tvec, _ = aruco.estimatePoseSingleMarkers(
-                                        corners[i],
-                                        0.1,
-                                        matrix_coefficients,
-                                        distortion_coefficients)
+                #else:
+                self.recent_tags.put(int(ids[i][0]))
+                rvec, tvec, _ = aruco.estimatePoseSingleMarkers(
+                                    corners[i],
+                                    0.1,
+                                    matrix_coefficients,
+                                    distortion_coefficients)
 
-                    self.detected_tag.tag_id = int(ids[i][0])
-                    #m = Vector3(x = rvec[0][0][0], y = rvec[0][0][1], z = rvec[0][0][2])
+                self.detected_tag.tag_id = int(ids[i][0])
+                #m = Vector3(x = rvec[0][0][0], y = rvec[0][0][1], z = rvec[0][0][2])
                 # m.x = rvec[0][0][0]
                 # m.y = rvec[0][0][1]
                 #  m.z = rvec[0][0][2]
-                    self.detected_tag.position = Vector3(x = tvec[0][0][0], y = tvec[0][0][1], z = tvec[0][0][2]) #[1.1,2.1,3.1] #rvec[0][0][0]
-                    self.detected_tag.posture = Vector3(x = rvec[0][0][0], y = rvec[0][0][1], z = rvec[0][0][2]) #[1.1,2.1,3.1] #rvec[0][0][0]
-                    self.broadcast_detected_tag()
-                    # Draw A square around the markers
-                    aruco.drawDetectedMarkers(frame, corners)
-                    aruco.drawAxis(frame, matrix_coefficients,
-                                distortion_coefficients,
-                                rvec,
-                                tvec,
-                                0.1)  # Draw Axis
-                    top = corners[0][0][0][0]
-                    bottom = corners[0][0][2][0]
-                    if abs(top - bottom) > self.reach_threshold:
-                        self.reached = True
-                        self.get_logger().info('Reached the goal')
-                    else:
-                        self.reached = False
-                    self.translation_x = tvec[0][0][0]
-                    self.stop = False
+                self.detected_tag.position = Vector3(x = tvec[0][0][0], y = tvec[0][0][1], z = tvec[0][0][2]) #[1.1,2.1,3.1] #rvec[0][0][0]
+                self.detected_tag.posture = Vector3(x = rvec[0][0][0], y = rvec[0][0][1], z = rvec[0][0][2]) #[1.1,2.1,3.1] #rvec[0][0][0]
+                self.broadcast_detected_tag()
+                # Draw A square around the markers
+                aruco.drawDetectedMarkers(frame, corners)
+                aruco.drawAxis(frame, matrix_coefficients,
+                            distortion_coefficients,
+                            rvec,
+                            tvec,
+                            0.1)  # Draw Axis
+                top = corners[0][0][0][0]
+                bottom = corners[0][0][2][0]
+                if abs(top - bottom) > self.reach_threshold:
+                    self.reached = True
+                    self.get_logger().info('Reached the goal')
+                else:
+                    self.reached = False
+                self.translation_x = tvec[0][0][0]
+                self.stop = False
         else:
             self.translation_x = 0
             self.stop = True

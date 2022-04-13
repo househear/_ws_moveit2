@@ -330,26 +330,26 @@ def generate_launch_description():
 
 
     return launch.LaunchDescription([
-        webots, 
-        launch_include_tcpip,
-        panda_controller,
-        image_commander,
-        rviz_node,
-        static_tf,
-        robot_state_publisher,
-        run_move_group_node,
-        run_move_group_demo,
-        run_process_controller,
-        ros2_control_node,
+        #webots, 
+        #launch_include_tcpip,
+        #panda_controller,
+        #image_commander,
+        #rviz_node,
+        #static_tf,
+        #robot_state_publisher,
+        #run_move_group_node,
+        #run_move_group_demo,
+        #run_process_controller,
+        #ros2_control_node,
         mongodb_server_node,
         db_server_node,
-        launch.actions.RegisterEventHandler(
-            event_handler=launch.event_handlers.OnProcessExit(
-                target_action=webots,
-                on_exit=[launch.actions.EmitEvent(event=launch.events.Shutdown())],
-            )
-        ),
+        # launch.actions.RegisterEventHandler(
+        #     event_handler=launch.event_handlers.OnProcessExit(
+        #         target_action=webots,
+        #         on_exit=[launch.actions.EmitEvent(event=launch.events.Shutdown())],
+        #     )
+        # ),
     ]
-    + load_controllers
+    #+ load_controllers
 
     )

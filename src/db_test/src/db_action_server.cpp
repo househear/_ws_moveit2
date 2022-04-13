@@ -45,9 +45,23 @@ Metadata::Ptr makeMetadata(const PoseCollection& coll, const int& n)
 {
   Metadata::Ptr meta = coll.createMetadata();
   meta->append("ID", n);
-  meta->append("status", n);
+  meta->append("status", 11);
   return meta;
 }
+
+
+// Helper function that creates metadata for a message.
+// Here we'll use the x and y position, as well as a 'name'
+// field that isn't part of the original message.
+Metadata::Ptr _makeMetadata(const PoseCollection& coll, const gm::msg::Pose& p, const string& n)
+{
+  Metadata::Ptr meta = coll.createMetadata();
+  meta->append("x", p.position.x);
+  meta->append("y", p.position.y);
+  meta->append("name", n);
+  return meta;
+}
+
 
 
 static const rclcpp::Logger LOGGER = rclcpp::get_logger("ompl_constrained_planning_demo");
@@ -72,6 +86,26 @@ inline geometry_msgs::msg::Pose makePose(const std::shared_ptr<rock_rhino_msgs::
   p.orientation.x = msg->posture.x;
   p.orientation.y = msg->posture.y;
   p.orientation.z = msg->posture.z;
+  return p;
+}
+
+
+geometry_msgs::msg::Quaternion createQuaternionMsgFromYaw(double yaw)
+{
+  geometry_msgs::msg::Quaternion q;
+  q.w = cos(yaw / 2);
+  q.z = sin(yaw / 2);
+  q.x = 0;
+  q.y = 0;
+  return q;
+}
+
+inline geometry_msgs::msg::Pose _makePose(const double x, const double y, const double theta)
+{
+  geometry_msgs::msg::Pose p;
+  p.position.x = x;
+  p.position.y = y;
+  p.orientation = createQuaternionMsgFromYaw(theta);
   return p;
 }
 
@@ -115,7 +149,6 @@ public:
     
       //end: listening image_processor/detected_tag   
 
-
       warehouse_ros_mongo::MongoDatabaseConnection conn;
       conn.setParams("localhost", 33829, 60.0);
       conn.connect();
@@ -124,12 +157,8 @@ public:
         RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "connection succefull");
       };
  
-
-
-
       // Clear existing data if any
       conn.dropDatabase("my_db");
-
 
       // Open the collection
       coll = conn.openCollection<gm::msg::Pose>("my_db", "poses");
@@ -188,22 +217,84 @@ private:
     auto & sequence = feedback->sequence;
     unsigned q1 = 0;
     auto result = std::make_shared<ProcessCommand::Result>();
-    if (goal->task_name == "query") {
+    if (goal->task_name == "query1") {
          RCLCPP_INFO(this->get_logger(), "Executing t1"); //inqury the data base if it is empty
          q1 = coll.count();
          sequence.push_back(q1);
+         sequence.push_back(2);
+         sequence.push_back(3);
           if (rclcpp::ok()) {
             result->sequence = sequence;
             goal_handle->succeed(result);
             RCLCPP_INFO(this->get_logger(), "Goal succeeded");
           }
     }
+
+    if (goal->task_name == "query") {
+         RCLCPP_INFO(this->get_logger(), "querying db"); //inqury the data base if it is empty
+         query_all();
+    }    
+
     if (goal->task_name == "t2") {
          RCLCPP_INFO(this->get_logger(), "Executing t2");
     }
   }
 
 
+  void add_record() //print out all records in db
+  {
+    //add a record
+  // Add some poses and metadata
+    const gm::msg::Pose p1 = _makePose(24, 42, 0);
+    const gm::msg::Pose p2 = _makePose(10, 532, 3);
+    const gm::msg::Pose p3 = _makePose(53, 22, 5);
+    const gm::msg::Pose p4 = _makePose(22, -5, 33);
+    coll.insert(p1, _makeMetadata(coll, p1, "bar"));
+    coll.insert(p2, _makeMetadata(coll, p2, "baz"));
+    coll.insert(p3, _makeMetadata(coll, p3, "qux"));
+    coll.insert(p1, _makeMetadata(coll, p1, "oof"));
+    coll.insert(p4, _makeMetadata(coll, p4, "ooof"));
+    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "return: %d", coll.count());
+  }
+
+  void delete_record() //print out all records in db
+  {
+
+      //delete a record
+    Query::Ptr q3 = coll.createQuery();
+    q3->append("name", "qux");
+    coll.removeMessages(q3);
+
+
+
+  // // Set up query to delete some poses.
+  // Query::Ptr q3 = coll.createQuery();
+  // q3->appendLT("y", 30);
+
+  // EXPECT_EQ(5u, coll.count());
+  // EXPECT_EQ(2u, coll.removeMessages(q3));
+  // EXPECT_EQ(3u, coll.count());
+  }
+
+  void query_all() //
+  {
+
+    // Simple query: find the pose with name 'qux' and return just its metadata
+    // Since we're doing an equality check, we don't explicitly specify a predicate
+    Query::Ptr q1 = coll.createQuery();
+    q1->appendLT("x", 20000);
+    vector<PoseMetaPtr> res = coll.queryList(q1, true);
+    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "return size: %d", res.size());
+    for (int i = 0; i < res.size(); i++)
+    {
+
+      std::cout << "name: " << res[i]->lookupString("name") << "-----"
+          << "x: " << res[i]->lookupDouble("x") << "-----"
+          << "y: " << res[i]->lookupDouble("y")
+          << std::endl;
+    }
+
+  }
 
   void update_db(std::shared_ptr<rock_rhino_msgs::msg::DetectedTag> msg)
   {

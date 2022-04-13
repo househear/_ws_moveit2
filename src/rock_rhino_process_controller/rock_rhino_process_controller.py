@@ -68,7 +68,7 @@ class Action_Client_2_PKG:
             self.parent_node.get_logger().info('Goal rejected :(')
             return
 
-        self.parent_node.get_logger().info('Goal accepted :)')
+        self.parent_node.get_logger().info('_Goal accepted :)')
 
         self._get_result_future = goal_handle.get_result_async()
         self._get_result_future.add_done_callback(self.get_result_callback)
@@ -80,7 +80,7 @@ class Action_Client_2_PKG:
         result = future.result().result
         status = future.result().status
         if status == GoalStatus.STATUS_SUCCEEDED:
-            self.parent_node.get_logger().info('Goal succeeded! Result: {0}'.format(result.sequence))
+            self.parent_node.get_logger().info('_Goal succeeded! Result: {0}'.format(result.sequence))
            
             self.process_controller.process_result = result.sequence[0]
 
@@ -297,19 +297,19 @@ class Process_Controller:
         if task_name == 'detect_tag':
             self.node.action_clients["image_processor"].send_task('aa')
             self.set_process_status(task_name)
-            print(task_name + ' is running')
+            self.node.get_logger().info(task_name + ' is running')
         elif task_name == 'db_query':
             self.node.action_clients["data_base"].send_task('query')
             self.set_process_status(task_name)
-            print(task_name + ' is running')
+            self.node.get_logger().info(task_name + ' is running')
         elif task_name == 'update_db2':
             self.node.action_clients["data_base"].send_task('t2')
             self.set_process_status(task_name)
-            print(task_name + ' is running')
+            self.node.get_logger().info(task_name + ' is running')
         elif task_name == 'moveit_plan':
             self.node.action_clients["moveit"].send_task('t2')
             self.set_process_status(task_name)
-            print(task_name + ' is running')
+            self.node.get_logger().info(task_name + ' is running')
         else:
             print('Unknown command....')
 
@@ -348,7 +348,7 @@ class Process_Controller:
         self.node.get_logger().info('job is done.')    
 
     def runtask_completed_call_back(self, task_name):
-        print(task_name, ' has completed, process_status is set to idle')
+        self.node.get_logger().info(task_name + ' has completed, process_status is set to idle')
         self.set_process_status('idle')
         
 
