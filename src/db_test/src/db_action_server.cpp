@@ -277,7 +277,7 @@ private:
     q1->appendLT("name", 20000);
     vector<PoseMetaPtr> res = coll.queryList(q1, false);
     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "return size: %d", res.size());
-    for (int i = 0; i < res.size(); i++)
+    for (int i = 0; i < int(res.size()); i++)
     {
       std::cout 
           << "< meta: " << res[i]->lookupInt("name") << " >---"
