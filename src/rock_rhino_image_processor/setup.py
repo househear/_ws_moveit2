@@ -23,7 +23,7 @@ data_files.append(('share/ament_index/resource_index/packages', [
 ]))
 data_files.append(('share/' + package_name, [
     'launch/line_following_launch.py',
-    'launch/ar_detection_launch.py',
+    'launch/demo_detection_launch.py',
     'launch/_ver01_image_processor.py'
 ]))
 data_files.append(('share/' + package_name + '/worlds', [
@@ -65,7 +65,8 @@ setup(
             'enable_robot = rock_rhino_image_processor.slave:main',
             'line_follower = rock_rhino_image_processor.master:main',
             'robot_enable = rock_rhino_image_processor.robot_enable:main',
-            'aruco_controller = rock_rhino_image_processor.aruco_controller:main'
+            'aruco_controller = rock_rhino_image_processor.aruco_controller:main',
+            'demo_controller = rock_rhino_image_processor.demo_controller:main'
         ],
         'launch.frontend.launch_extension': ['launch_ros = launch_ros']
     }

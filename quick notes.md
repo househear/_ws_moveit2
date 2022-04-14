@@ -13,6 +13,9 @@ db: ros2 launch db_test db_server.launch.py
 controller: ros2 run rock_rhino_process_controller rock_rhino_process_controller
 
 
+ros2 launch rock_rhino_image_processor _ver01_image_processor.py
+
+
 Errors:
 [component_container-2] 2022-04-13 15:34:00.365 [RTPS_TRANSPORT_SHM Error] Failed init_port fastrtps_port7414: open_and_lock_file failed -> Function open_port_internal
 

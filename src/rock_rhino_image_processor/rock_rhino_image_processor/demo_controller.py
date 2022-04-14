@@ -29,7 +29,7 @@ class ArucoController(Node):
     def __init__(self):
         super().__init__('aruco_controller')
         # Publish cmd vel
-        self.pubs_cmdvel = self.create_publisher(DetectedTag, 'cmd_vel', 1)
+        self.pubs_cmdvel = self.create_publisher(Twist, 'cmd_vel', 1)
         time.sleep(5)
 
         # vehicle parameters
@@ -77,7 +77,7 @@ class ArucoController(Node):
 
         # Publish cmd vel
         self.detected_tag.tag_id = 10
-        self.pubs_cmdvel.publish(self.detected_tag)
+        self.pubs_cmdvel.publish(self.cmd)
 
     def image_processing_callback(self, msg):
         frame = self.bridge.imgmsg_to_cv2(msg, "rgb8")
@@ -101,7 +101,6 @@ class ArucoController(Node):
                             parameters=parameters,
                             cameraMatrix=matrix_coefficients,
                             distCoeff=distortion_coefficients)
-        print(ids, ": ID of AR-tag")
         if np.all(ids is not None):  # If there are markers found by detector
             for i in range(0, len(ids)):  # Iterate in markers
                 rvec, tvec, _ = aruco.estimatePoseSingleMarkers(
@@ -109,7 +108,7 @@ class ArucoController(Node):
                                     0.1,
                                     matrix_coefficients,
                                     distortion_coefficients)
-                self.regulate_direction()
+                
                 # Draw A square around the markers
                 aruco.drawDetectedMarkers(frame, corners)
                 aruco.drawAxis(frame, matrix_coefficients,
@@ -129,6 +128,8 @@ class ArucoController(Node):
         else:
             self.translation_x = 0
             self.stop = True
+
+        self.regulate_direction()
         self.processedImage_publish.publish(self.bridge.cv2_to_imgmsg(frame,
                                                                       "rgb8"))
 

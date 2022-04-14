@@ -40,7 +40,7 @@ def generate_launch_description():
 
     image_commander = Node(
         package='rock_rhino_image_processor',
-        executable='aruco_controller',
+        executable='demo_controller',
         #name='aruco_controller'
     )
 

@@ -48,8 +48,8 @@ class RobotEnable(WebotsNode):
         self.motor_max_speed = self.left_motor_rear.getMaxVelocity()
 
         # Create Subscriber
-        #self.cmd_vel_subscriber = self.create_subscription(
-         #   Twist, 'cmd_vel', self.cmd_velocity_callback, 1)
+        self.cmd_vel_subscriber = self.create_subscription(
+           Twist, 'cmd_vel', self.cmd_velocity_callback, 1)
 
         self.start_device_manager(DEVICE_CONFIG)
         self.get_logger().info('Sensor enabled')
